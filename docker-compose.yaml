@@ -1,0 +1,36 @@
+services:
+  poll-bot:
+    image: poll-bot
+    build:
+      context: .
+    volumes:
+      - ./poll_bot:/poll_bot
+    command: >
+      sh -c "python main.py"
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+    volumes:
+      - redis_data:/data
+    ports:
+      - '6379:6379'
+    command: redis-server --appendonly yes
+
+  redis_insight:
+    image: redislabs/redisinsight:1.14.0
+    container_name: redis_insight
+    restart: always
+    ports:
+      - '8001:8001'
+    volumes:
+      - redis_insight_data:/db
+    depends_on:
+      - redis
+
+volumes:
+  redis_data:
+  redis_insight_data:
